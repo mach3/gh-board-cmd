@@ -2,6 +2,7 @@
 
 const cp = require("node:child_process");
 const fs = require("node:fs");
+const path = require("node:path");
 const process = require("node:process");
 const { parseArgs } = require("node:util");
 
@@ -17,12 +18,14 @@ Arguments:
 Options:
   -s, --save <file>      取得したデータをJSONファイルに保存
   -l, --load <file>      JSONファイルからデータを読み込み
+  -o, --out-dir <dir>    出力ディレクトリ（デフォルト: .out）
   -h, --help             ヘルプを表示
 
 Examples:
   gh-board myorg 1
   gh-board myorg 1 --save data.json
   gh-board myorg 1 --load data.json
+  gh-board myorg 1 -o .out
 `.trim();
 
 function showHelp() {
@@ -43,6 +46,11 @@ const {
       load: {
         type: "string",
         short: "l",
+      },
+      "out-dir": {
+        type: "string",
+        short: "o",
+        default: ".out",
       },
       help: {
         type: "boolean",
@@ -84,6 +92,16 @@ function loadFromFile(filePath) {
 
 function saveToFile(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+}
+
+function getTimestamp() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  return `${year}${month}${day}-${hours}${minutes}`;
 }
 
 async function load() {
@@ -154,6 +172,7 @@ function parsePriorityLabel(labels) {
 }
 
 async function main() {
+  const outDir = options["out-dir"];
   const data = await load();
   const out = [];
 
@@ -172,7 +191,19 @@ async function main() {
     out.push("");
   });
 
-  console.log(out.join("\n"));
+  const output = out.join("\n");
+
+  if (!fs.existsSync(outDir)) {
+    console.error(`出力ディレクトリが存在しません: ${outDir}`);
+    console.error("-".repeat(40));
+    console.log(output);
+    return;
+  }
+
+  const timestamp = getTimestamp();
+  const mdPath = path.join(outDir, `${timestamp}.md`);
+  fs.writeFileSync(mdPath, output, "utf-8");
+  console.log(`保存しました: ${mdPath}`);
 }
 
 main();

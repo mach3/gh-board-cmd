@@ -1,0 +1,23 @@
+{
+  "name": "gh-board-cmd",
+  "version": "1.0.0",
+  "description": "GitHub Project のボード情報を取得して表示する CLI ツール",
+  "author": "mach3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mach3/gh-board-cmd.git"
+  },
+  "main": "index.js",
+  "bin": {
+    "gh-board": "./src/gh-board.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.1",
+  "dependencies": {
+    "@biomejs/biome": "^2.3.8"
+  }
+}
